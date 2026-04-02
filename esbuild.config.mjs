@@ -1,6 +1,7 @@
 import esbuild from "esbuild";
 import process from "process";
 import { builtinModules } from 'node:module';
+import { copyFileSync, mkdirSync } from 'node:fs';
 
 const banner =
 `/*
@@ -10,6 +11,10 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const prod = (process.argv[2] === "production");
+const outdir = "dist";
+
+// Ensure dist/ folder exists
+mkdirSync(outdir, { recursive: true });
 
 const context = await esbuild.context({
 	banner: {
@@ -37,13 +42,23 @@ const context = await esbuild.context({
 	logLevel: "info",
 	sourcemap: prod ? false : "inline",
 	treeShaking: true,
-	outfile: "main.js",
+	outfile: `${outdir}/main.js`,
 	minify: prod,
 });
 
+// Copy manifest.json and styles.css into dist/ alongside main.js
+function copyAssets() {
+	copyFileSync("manifest.json", `${outdir}/manifest.json`);
+	copyFileSync("styles.css", `${outdir}/styles.css`);
+	console.log(`✔ Copied manifest.json and styles.css → ${outdir}/`);
+}
+
 if (prod) {
 	await context.rebuild();
+	copyAssets();
 	process.exit(0);
 } else {
+	// For dev/watch mode, copy assets once at start
+	copyAssets();
 	await context.watch();
 }
