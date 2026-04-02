@@ -73,15 +73,19 @@ export default class MyPlugin extends Plugin {
 	//  Core drag-start handler
 	// ──────────────────────────────────────────────
 	private handleDragStart(evt: DragEvent): void {
-		// Only act on elements with the .nav-file-title class
+		// Only act on elements with the .nav-file-title or .nav-folder-title class
 		const target = evt.target as HTMLElement | null;
 		if (!target) return;
 
-		const navFileTitle = target.closest('.nav-file-title') as HTMLElement | null;
-		if (!navFileTitle) return;
+		let navElement = target.closest('.nav-file-title') as HTMLElement | null;
+		if (!navElement) {
+			navElement = target.closest('.nav-folder-title') as HTMLElement | null;
+		}
+		
+		if (!navElement) return;
 
 		// Extract the vault-relative path
-		const vaultPath = navFileTitle.getAttribute('data-path');
+		const vaultPath = navElement.getAttribute('data-path');
 		if (!vaultPath) {
 			console.warn(`${PLUGIN_PREFIX}: Dragged element has no data-path attribute.`);
 			return;
@@ -94,13 +98,7 @@ export default class MyPlugin extends Plugin {
 			return;
 		}
 
-		// Only handle files (not folders)
-		if (!(abstractFile instanceof TFile)) {
-			console.log(`${PLUGIN_PREFIX}: "${vaultPath}" is not a file. Allowing default behavior.`);
-			return;
-		}
-
-		const file: TFile = abstractFile;
+		const file: TAbstractFile = abstractFile;
 
 		// Resolve the absolute system path
 		let absolutePath: string;
