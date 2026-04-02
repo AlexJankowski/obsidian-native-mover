@@ -1,4 +1,4 @@
-# This plugins enables key modifiers for moving files and folders outside Obsidian Vault
+# This plugin enables key modifiers for moving files and folders outside Obsidian Vault
 
 To activate it simply press modifier **before** dragging file from obsidian explorer
 
